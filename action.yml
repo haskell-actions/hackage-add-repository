@@ -1,0 +1,64 @@
+name: Add Hackage Repository to Cabal
+description: Adds a hackage repository to Cabal configuration file
+
+branding:
+  icon: 'plus-circle'
+  color: 'green'
+
+inputs:
+  repositoryName:
+    description: 'Name of the repository'
+    required: true
+
+  repositoryUri:
+    description: 'Hackage repository URI'
+    required: true
+
+  username:
+    description: 'Username for the repository'
+    required: false
+    default: ''
+
+  password:
+    description: 'Password for the repository'
+    required: false
+    default: ''
+
+  authToken:
+    description: 'Authorisation token for Hackage'
+    required: false
+    default: ''
+
+  rootKeys:
+    description: 'Hackage repository root keys'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+
+    - name: 'Add token to .wgetrc'
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.authToken }}" ]; then
+          echo "Authorization: X-ApiKey ${{ inputs.authToken }}" >> $HOME/.wgetrc
+        fi
+
+        if [ -n "${{ inputs.username }}" ] && [ -n "${{ inputs.password }}" ];
+          then
+            HACKAGE_URI=$(sed -E "s|(.*)://(.*)|\1://${{ inputs.username }}:${{ inputs.password }}@\2/|g" <<< ${{ inputs.repositoryUri }})
+          else
+            HACKAGE_URI="${{ inputs.repositoryUri }}/"
+        fi
+
+        echo                                          >> $HOME/.cabal/config
+        echo "http-transport: wget"                   >> $HOME/.cabal/config
+        echo "repository ${{ inputs.repositoryName}}" >> $HOME/.cabal/config
+        echo "  url: $HACKAGE_URI"                    >> $HOME/.cabal/config
+        echo "  secure: True"                         >> $HOME/.cabal/config
+
+        if [ -n "${{ inputs.rootKeys }}" ]; then
+          echo "  root-keys: "${{ inputs.rootKeys }}" >> $HOME/.cabal/config
+          echo "  key-threshold: 2"                   >> $HOME/.cabal/config
+        fi
