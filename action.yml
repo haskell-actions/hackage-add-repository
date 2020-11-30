@@ -59,6 +59,6 @@ runs:
         echo "  secure: True"                         >> $HOME/.cabal/config
 
         if [ -n "${{ inputs.rootKeys }}" ]; then
-          echo "  root-keys: "${{ inputs.rootKeys }}" >> $HOME/.cabal/config
+          echo "  root-keys: ${{ inputs.rootKeys }}"  >> $HOME/.cabal/config
           echo "  key-threshold: 2"                   >> $HOME/.cabal/config
         fi
