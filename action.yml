@@ -42,7 +42,7 @@ runs:
       shell: bash
       run: |
         if [ -n "${{ inputs.authToken }}" ]; then
-          echo "Authorization: X-ApiKey ${{ inputs.authToken }}" >> $HOME/.wgetrc
+          echo "header = Authorization: X-ApiKey ${{ inputs.authToken }}" >> $HOME/.wgetrc
         fi
 
         if [ -n "${{ inputs.username }}" ] && [ -n "${{ inputs.password }}" ];
